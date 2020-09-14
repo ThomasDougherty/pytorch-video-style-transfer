@@ -1,9 +1,11 @@
-import os
 import argparse
+import os
 import random
 import time
 
 import numpy as np
+from PIL import Image
+from tqdm import tqdm
 import torch
 import torch.nn.functional as F
 from torch.optim import Adam
@@ -12,8 +14,7 @@ from torchvision import datasets
 from torchvision import transforms
 
 import utils
-from transformer_net import TransformerNet
-from vgg import Vgg16
+from models import TransformerNet, Vgg16
 
 def train(args):
     device = torch.device("cuda" if args.cuda else "cpu")
@@ -34,11 +35,12 @@ def train(args):
     optimizer = Adam(transformer.parameters(), args.lr)
     mse_loss = torch.nn.MSELoss()
 
-    vgg = Vgg16(requires_grad=False).to(device)
+    vgg = Vgg16(weights=args.vgg16, requires_grad=False).to(device)
     style_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x.mul(255))
     ])
+
     style = utils.load_image(args.style_image, size=args.style_size)
     style = style_transform(style)
     style = style.repeat(args.batch_size, 1, 1, 1).to(device)
@@ -112,13 +114,40 @@ def train(args):
             L.backward()
             optimizer.step()
 
-            #L.backward()      
-            #optimizer.step() 
-
-    # save model
     transformer.eval().cpu()
     save_model_filename = "epoch_" + str(args.epochs) + "_" + str(time.ctime()).replace(' ', '_') + ".model"
     save_model_path = os.path.join(args.save_model_dir, save_model_filename)
     torch.save(transformer.state_dict(), save_model_path)
 
     print("\nDone, trained model saved at", save_model_path)
+
+def stylize(args):
+    device = torch.device("cuda" if args.cuda else "cpu")
+    style_model = TransformerNet()
+    state_dict = torch.load(args.model)
+    style_model.load_state_dict(state_dict)
+    style_model.to(device)
+
+    img_list = os.listdir(args.content_dir)
+    img_list.sort()
+    for img in tqdm(img_list):
+        img_path = args.content_dir + img
+        content_org = utils.load_image(img_path, scale=args.content_scale)
+        content_transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Lambda(lambda x: x.mul(255))
+        ])
+        content_image = content_transform(content_org)
+        content_image = content_image.unsqueeze(0).to(device)
+
+        with torch.no_grad():
+            output = style_model(content_image).cpu()
+        output = output[0]
+        output = output.clone().clamp(0, 255).numpy()
+        output = output.transpose(1, 2, 0).astype("uint8")
+        output = Image.fromarray(output)
+
+        if args.keep_colors:
+            med = utils.original_colors(content_org, output)
+
+        output.save(args.output_dir + img)

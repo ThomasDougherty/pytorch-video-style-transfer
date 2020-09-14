@@ -1,0 +1,6 @@
+__pycache__
+venvs/
+ckpt/
+run.sh
+*.pyc
+data/
