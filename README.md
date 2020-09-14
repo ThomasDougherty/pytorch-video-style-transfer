@@ -10,7 +10,7 @@ There are no extra compiled components in the repository and package dependencie
 so the code is very simple to use.
 First, clone the repository locally:
 ```
-git clone https://github.com/ThomasDougherty/video-style-transfer.git
+git clone https://github.com/ThomasDougherty/pytorch-video-style-transfer.git
 ```
 Next install the required dependencies:
 ```
