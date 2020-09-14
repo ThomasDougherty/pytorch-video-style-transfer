@@ -17,7 +17,7 @@ def get_args_parser():
     train_arg_parser.add_argument("--dataset", type=str, required=True,
                                     help="path to training dataset, the path should point to a folder "
                                         "containing another folder with all the training images")
-    train_arg_parser.add_argument("--vgg16", type=str, default=None
+    train_arg_parser.add_argument("--vgg16", type=str, default=None,
                                     help="path to vgg16 weights, if left None then torchvision will try install")
     train_arg_parser.add_argument("--style-image", type=str, required=True,
                                     help="path to style-image")

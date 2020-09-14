@@ -7,7 +7,7 @@ from torchvision import models
 class Vgg16(torch.nn.Module):
     def __init__(self, weights, requires_grad=False):
         super(Vgg16, self).__init__()
-        if weights is not None
+        if weights is not None:
             vgg = models.vgg16()
             vgg.load_state_dict(torch.load(weights))
             vgg_pretrained_features = vgg.features
