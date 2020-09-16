@@ -148,6 +148,6 @@ def stylize(args):
         output = Image.fromarray(output)
 
         if args.keep_colors:
-            med = utils.original_colors(content_org, output)
+            output = utils.original_colors(content_org, output)
 
         output.save(args.output_dir + img)

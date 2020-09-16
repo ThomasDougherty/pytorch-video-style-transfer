@@ -65,7 +65,7 @@ def get_args_parser():
                                     help="saved model to be used for stylizing the image. If file ends in .pth - PyTorch path is used, if in .onnx - Caffe2 path")
     eval_arg_parser.add_argument("--cuda", type=int, required=True,
                                     help="set it to 1 for running on GPU, 0 for CPU")
-    eval_arg_parser.add_argument("--keep-colors", default=True,
+    eval_arg_parser.add_argument("--keep-colors", action="store_true",
                                     help="transfer color to stylized output")
     return main_arg_parser.parse_args()
 
