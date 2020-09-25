@@ -1,8 +1,14 @@
 # Video style transfer with PyTorch
 
-PyTorch implementation of Element AI's [Stabilizing neural style-transfer for video](https://github.com/ElementAI/chainer-fast-neuralstyle/tree/stable-style). Details can be found at my [blog](https://thomasdougherty.github.io/pytorch-video-style-transfer/).
-
 ![video-style-transfer](.github/cover.png)
+
+# Blogpost
+
+https://thomasdougherty.github.io/pytorch-video-style-transfer/
+
+# About
+
+PyTorch implementation of Element AI's [Stabilizing neural style-transfer for video](https://github.com/ElementAI/chainer-fast-neuralstyle/tree/stable-style). Details can be found at my [blog](https://thomasdougherty.github.io/pytorch-video-style-transfer/).
 
 # Getting Started
 
