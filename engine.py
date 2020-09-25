@@ -14,6 +14,7 @@ from torchvision import datasets
 from torchvision import transforms
 
 import utils
+from dataset import load_data
 from models import TransformerNet, Vgg16
 
 def train(args):
@@ -22,14 +23,8 @@ def train(args):
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    transform = transforms.Compose([
-        transforms.Resize(args.image_size),
-        transforms.CenterCrop(args.image_size),
-        transforms.ToTensor(),
-        transforms.Lambda(lambda x: x.mul(255))
-    ])
-    train_dataset = datasets.ImageFolder(args.dataset, transform)
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size)
+    data_train = load_data(args)
+    iterator = data_train 
 
     transformer = TransformerNet().to(device)
     optimizer = Adam(transformer.parameters(), args.lr)
@@ -62,7 +57,8 @@ def train(args):
                 noiseimg_n[2][x_n][y_n] += random.randrange(-args.noise, args.noise)
                 noiseimg = torch.from_numpy(noiseimg_n)
                 noiseimg = noiseimg.to(device) 
-        for batch_id, (x, _) in enumerate(train_loader):
+        for batch_id, sample in enumerate(iterator):
+            x = sample['image']
             n_batch = len(x)
             count += n_batch
             optimizer.zero_grad()
@@ -101,13 +97,13 @@ def train(args):
                 L_pop = args.lambda_noise * F.mse_loss(y, noisy_y)
                 L = L_feat + L_style + L_tv + L_pop
                 print('Epoch {},{}/{}. Total loss: {}. Loss distribution: feat {}, style {}, tv {}, pop {}'
-                            .format(e, batch_id, len(train_loader), L.data,
+                            .format(e, batch_id, len(data_train), L.data,
                                     L_feat.data/L.data, L_style.data/L.data,
                                     L_tv.data/L.data, L_pop.data/L.data))
             else:
                 L = L_feat + L_style + L_tv
                 print('Epoch {},{}/{}. Total loss: {}. Loss distribution: feat {}, style {}, tv {}'
-                            .format(e, batch_id, len(train_loader), L.data,
+                            .format(e, batch_id, len(data_train), L.data,
                                     L_feat.data/L.data, L_style.data/L.data,
                                     L_tv.data/L.data)) 
             L = L_style*1e10 + L_feat*1e5
